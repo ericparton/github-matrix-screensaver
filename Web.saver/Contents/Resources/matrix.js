@@ -34,7 +34,7 @@
             console.log("fetching: %s", fetchSize);
 
             $.ajax({
-                url: 'https://github-matrix.herokuapp.com/fetch',
+                url: 'http://localhost:8080/fetch',
                 cache: false,
                 data: {fetchSize: fetchSize}
             }).done(function (result) {
@@ -164,16 +164,12 @@
         };
 
         this.start = function () {
-            new Intro(options)
-                .start()
-                .then(function () {
-                    pool.schedule(function () {
-                        initialize();
-                        that.play();
-                        $(canvas).css('cursor', 'pointer');
-                        $('.controls').show();
-                    });
-                });
+            pool.schedule(function () {
+                initialize();
+                that.play();
+                $(canvas).css('cursor', 'pointer');
+                $('.controls').show();
+            });
         };
 
         this.pause = function () {
@@ -223,73 +219,6 @@
             that.play();
         }, 300));
 
-    };
-
-    var Intro = function (options) {
-        var canvas = options.canvas;
-        var ctx = canvas.getContext("2d");
-
-        var xMax = Math.floor(canvas.width / options.fontSize);
-        var yMax = Math.ceil(canvas.height / options.fontSize);
-
-        var draw = function () {
-            drawBackground();
-            drawNumbers();
-        };
-
-        var drawBackground = function () {
-            ctx.shadowColor = 'black';
-            ctx.shadowOffsetX = 0;
-            ctx.shadowOffsetY = 0;
-            ctx.shadowBlur = 0;
-            ctx.fillStyle = "rgba(0, 0, 0, 0.75)";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-        };
-
-        var drawNumbers = function () {
-            for (var x = 1; x < xMax; x++) {
-                if (x % 16 === 0) continue;
-
-                for (var y = 1; y < yMax; y++) {
-                    //if (y % 16 === 0) continue;
-
-                    ctx.shadowOffsetX = 0;
-                    ctx.shadowOffsetY = 0;
-                    ctx.shadowBlur = 3;
-                    ctx.font = options.fontSize + "px 'Courier New'";
-                    ctx.fillStyle = "#0F0";
-                    ctx.shadowColor = '#0F0';
-
-                    var posX = x * options.fontSize;
-                    var posY = y * options.fontSize;
-
-                    var num = Math.ceil(Math.random() * 9);
-                    if (Math.random() > 0.99) {
-                        num = 'π';
-                    }
-
-                    ctx.fillText(String(num), posX, posY);
-                }
-            }
-        };
-
-        this.start = function () {
-            console.log('starting intro');
-            var that = this;
-            var interval = setInterval(draw, 150);
-            setTimeout(function () {
-                console.log('ending intro');
-                clearInterval(interval);
-                ctx.fillStyle = "#000";
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                that.start.then();
-            }, 2000);
-            return that;
-        };
-
-        this.then = function (fn) {
-            this.start.then = fn;
-        };
     };
 
     var matrix = new Matrix({
